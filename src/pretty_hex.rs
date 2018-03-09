@@ -85,7 +85,7 @@ impl<'a, T:'a + AsRef<[u8]>> fmt::Debug for Hex<'a, T> {
 
 /// Allows generates hex dumps to a formatter.
 pub trait PrettyHex: Sized {
-    /// Wrap self reference for use in `std::fmt::Display`/`std::fmt::Debug` formatiing as hex dumps.
+    /// Wrap self reference for use in `std::fmt::Display`/`std::fmt::Debug` formating as hex dumps.
     fn hex_dump<'a>(&'a self) -> Hex<'a, Self>;
 }
 
