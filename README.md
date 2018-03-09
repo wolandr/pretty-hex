@@ -1,4 +1,5 @@
 # pretty-hex
+[![crates.io](https://img.shields.io/crates/v/pretty-hex.svg)](https://crates.io/crates/pretty-hex) [![docs.rs](https://docs.rs/pretty-hex/badge.svg)](https://docs.rs/pretty-hex)
 
 A Rust library prividing pretty hex dump.
 
