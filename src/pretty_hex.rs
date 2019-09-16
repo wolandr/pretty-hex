@@ -1,5 +1,6 @@
-use std::fmt;
-use std::result::Result;
+use alloc::{string::String, vec::Vec};
+use core::fmt;
+use core::result::Result;
 
 /// Returns a `String` showing octets grouped in 4-byte words. 
 pub fn simple_hex<T: AsRef<[u8]>>(source: &T) -> String {

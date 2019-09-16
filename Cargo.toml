@@ -7,7 +7,11 @@ description = "Pretty hex dump of bytes slice in the common style."
 readme = "README.md"
 homepage = "https://github.com/wolandr/pretty-hex"
 repository = "https://github.com/wolandr/pretty-hex"
-categories = ["development-tools::debugging"]
+categories = ["development-tools::debugging", "no-std"]
 keywords = ["logging", "hex", "dump", "binary"]
 
 [dependencies]
+
+[features]
+default = []
+alloc = []
