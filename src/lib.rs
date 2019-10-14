@@ -6,7 +6,7 @@
 //! A `simple_*` way renders one-line hex dump, and a `pretty_*` wayrenders 
 //! columned multy-line hex dump with addresing and ASCII representation.
 //! 
-//! ## Example of `simple_hex*`
+//! ## Example of `simple_hex`
 //! ```
 //! use pretty_hex::*;
 //! 
@@ -20,7 +20,7 @@
 //! ```text
 //! de ad be ef  ca fe 20 18
 //! ```
-//! ## Example of `pretty_hex*
+//! ## Example of `pretty_hex`
 //! ```
 //! use pretty_hex::*;
 //! 
