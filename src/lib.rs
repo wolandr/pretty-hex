@@ -24,7 +24,7 @@
 //! ```
 //! use pretty_hex::*;
 //! 
-//! let v: &[u8] = &random::<[u8;30]>();
+//! let v: &[u8] = &rand::random::<[u8;30]>();
 //! assert_eq!(pretty_hex(&v), format!("{:?}", v.hex_dump()));
 //! 
 //! println!("{:?}", v.hex_dump());
