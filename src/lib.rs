@@ -1,5 +1,4 @@
 #![no_std]
-#![cfg_attr(feature = "alloc", feature(alloc))]
 
 //! A Rust library providing pretty hex dump.
 //!
@@ -57,6 +56,7 @@
 //! 0018:   db b1 bc 35 bf ee         ...5..
 //! ```
 
+#[cfg(feature = "alloc")]
 extern crate alloc;
 
 mod pretty_hex;

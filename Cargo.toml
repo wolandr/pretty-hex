@@ -16,5 +16,5 @@ keywords = ["logging", "hex", "dump", "binary"]
 [dev-dependencies]
 
 [features]
-default = []
+default = ["alloc"]
 alloc = []
