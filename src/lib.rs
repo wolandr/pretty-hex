@@ -11,6 +11,7 @@
 //! use pretty_hex::*;
 //!
 //! let v = vec![222, 173, 190, 239, 202, 254, 32, 24];
+//! # #[cfg(feature = "alloc")]
 //! assert_eq!(simple_hex(&v), format!("{}", v.hex_dump()));
 //!
 //! println!("{}", v.hex_dump());
@@ -25,6 +26,7 @@
 //! use pretty_hex::*;
 //!
 //! let v = &include_bytes!("../tests/data");
+//! # #[cfg(feature = "alloc")]
 //! assert_eq!(pretty_hex(&v), format!("{:?}", v.hex_dump()));
 //!
 //! println!("{:?}", v.hex_dump());
@@ -43,6 +45,7 @@
 //! let cfg = HexConfig {title: false, width: 8, group: 0, ..HexConfig::default() };
 //!
 //! let v = &include_bytes!("../tests/data");
+//! # #[cfg(feature = "alloc")]
 //! assert_eq!(config_hex(&v, cfg), format!("{:?}", v.hex_conf(cfg)));
 //!
 //! println!("{:?}", v.hex_conf(cfg));
