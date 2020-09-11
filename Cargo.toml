@@ -1,6 +1,6 @@
 [package]
 name = "pretty-hex"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Andrei Volnin <wolandr@gmail.com>"]
 license = "MIT"
 description = "Pretty hex dump of bytes slice in the common style."
