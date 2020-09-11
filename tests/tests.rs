@@ -1,12 +1,14 @@
 #![no_std]
-#![cfg_attr(feature = "alloc", feature(alloc))]
 
+#[cfg(feature = "alloc")]
 extern crate alloc;
 extern crate pretty_hex;
 
+#[cfg(feature = "alloc")]
 use alloc::{format, string::String, vec, vec::Vec};
 use pretty_hex::*;
 
+#[cfg(feature = "alloc")]
 #[test]
 fn test_simple() {
     let bytes: Vec<u8> = (0..16).collect();
@@ -29,6 +31,7 @@ fn test_simple() {
     assert!(simple_hex(&vec![]).is_empty());
 }
 
+#[cfg(feature = "alloc")]
 #[test]
 fn test_pretty() {
     let bytes: Vec<u8> = (0..256).map(|x| x as u8).collect();
@@ -44,6 +47,7 @@ fn test_pretty() {
     assert_eq!("Length: 0 (0x0) bytes\n", pretty_hex(&vec![]));
 }
 
+#[cfg(feature = "alloc")]
 #[test]
 fn test_config() {
     let cfg = HexConfig {
@@ -139,4 +143,21 @@ fn test_config() {
         format!("{}", v.hex_conf(cfg)),
         "00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 10 11 12"
     );
+}
+
+// This test case checks that hex_write works even without the alloc crate.
+// Decorators to this function like simple_hex_write or PrettyHex::hex_dump()
+// will be tested when the alloc feature is selected because it feels quite
+// cumbersome to set up these tests without the comodity from `alloc`.
+#[test]
+fn test_hex_write_with_simple_config() {
+    let config = HexConfig::simple();
+    let bytes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+    let expected = core::str::from_utf8(b"00 01 02 03  04 05 06 07  08 09 0a 0b  0c 0d 0e 0f").unwrap();
+    let mut buffer = heapless::Vec::<u8, heapless::consts::U50>::new();
+
+    hex_write(&mut buffer, &bytes, config).unwrap();
+
+    let have = core::str::from_utf8(&buffer).unwrap();
+    assert_eq!(expected, have);
 }

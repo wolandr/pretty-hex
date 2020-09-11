@@ -1,5 +1,4 @@
 #![no_std]
-#![cfg_attr(feature = "alloc", feature(alloc))]
 
 //! A Rust library providing pretty hex dump.
 //!
@@ -12,6 +11,7 @@
 //! use pretty_hex::*;
 //!
 //! let v = vec![222, 173, 190, 239, 202, 254, 32, 24];
+//! # #[cfg(feature = "alloc")]
 //! assert_eq!(simple_hex(&v), format!("{}", v.hex_dump()));
 //!
 //! println!("{}", v.hex_dump());
@@ -26,6 +26,7 @@
 //! use pretty_hex::*;
 //!
 //! let v = &include_bytes!("../tests/data");
+//! # #[cfg(feature = "alloc")]
 //! assert_eq!(pretty_hex(&v), format!("{:?}", v.hex_dump()));
 //!
 //! println!("{:?}", v.hex_dump());
@@ -44,6 +45,7 @@
 //! let cfg = HexConfig {title: false, width: 8, group: 0, ..HexConfig::default() };
 //!
 //! let v = &include_bytes!("../tests/data");
+//! # #[cfg(feature = "alloc")]
 //! assert_eq!(config_hex(&v, cfg), format!("{:?}", v.hex_conf(cfg)));
 //!
 //! println!("{:?}", v.hex_conf(cfg));
@@ -57,6 +59,7 @@
 //! 0018:   db b1 bc 35 bf ee         ...5..
 //! ```
 
+#[cfg(feature = "alloc")]
 extern crate alloc;
 
 mod pretty_hex;

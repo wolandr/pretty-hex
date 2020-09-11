@@ -1,8 +1,10 @@
+#[cfg(feature = "alloc")]
 use alloc::string::String;
 use core::{default::Default, fmt};
 
 /// Returns a one-line hexdump of `source` grouped in default format without header
 /// and ASCII column.
+#[cfg(feature = "alloc")]
 pub fn simple_hex<T: AsRef<[u8]>>(source: &T) -> String {
     let mut writer = String::new();
     hex_write(&mut writer, source, HexConfig::simple()).unwrap_or(());
@@ -20,6 +22,7 @@ where
 
 /// Return a multi-line hexdump in default format complete with addressing, hex digits,
 /// and ASCII representation.
+#[cfg(feature = "alloc")]
 pub fn pretty_hex<T: AsRef<[u8]>>(source: &T) -> String {
     let mut writer = String::new();
     hex_write(&mut writer, source, HexConfig::default()).unwrap_or(());
@@ -37,6 +40,7 @@ where
 }
 
 /// Return a hexdump of `source` in specified format.
+#[cfg(feature = "alloc")]
 pub fn config_hex<T: AsRef<[u8]>>(source: &T, cfg: HexConfig) -> String {
     let mut writer = String::new();
     hex_write(&mut writer, source, cfg).unwrap_or(());
