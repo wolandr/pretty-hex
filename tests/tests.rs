@@ -145,6 +145,17 @@ fn test_config() {
     );
 }
 
+#[cfg(feature = "alloc")]
+#[test]
+fn test_unsized() {
+    struct NewType([u8]);
+
+    let x: &NewType = unsafe{ &*(&[] as *const [u8] as *const NewType) };
+
+    format!("{}", x.0.hex_dump());
+    format!("{:?}", x.0.hex_dump());
+}
+
 // This test case checks that hex_write works even without the alloc crate.
 // Decorators to this function like simple_hex_write or PrettyHex::hex_dump()
 // will be tested when the alloc feature is selected because it feels quite
