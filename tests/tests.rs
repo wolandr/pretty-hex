@@ -56,6 +56,7 @@ fn test_config() {
         width: 0,
         group: 0,
         chunk: 0,
+        max_bytes: usize::MAX,
     };
     assert!(config_hex(&vec![], cfg).is_empty());
     assert_eq!("2425262728", config_hex(&"$%&'(", cfg));
@@ -108,7 +109,8 @@ fn test_config() {
                 ascii: true,
                 width: 11,
                 group: 2,
-                chunk: 3
+                chunk: 3,
+                max_bytes: usize::MAX,
             }),
         "0000:   000102 030405  060708 090a   ...........\n\
          000b:   0b0c                         .."
@@ -122,7 +124,8 @@ fn test_config() {
                 ascii: true,
                 width: 16,
                 group: 3,
-                chunk: 3
+                chunk: 3,
+                max_bytes: usize::MAX,
             }
         ),
         "0000:   000102 030405 060708  090a0b 0c0d0e 0f   ................\n\
@@ -142,6 +145,27 @@ fn test_config() {
     assert_eq!(
         format!("{}", v.hex_conf(cfg)),
         "00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 10 11 12"
+    );
+
+    let cfg = HexConfig {
+        max_bytes: 16,
+        ..HexConfig::default()
+    };
+    assert_eq!(
+        format!("{:?}", v.hex_conf(cfg)),
+        "Length: 19 (0x13) bytes\n\
+         0000:   00 01 02 03  04 05 06 07  08 09 0a 0b  0c 0d 0e 0f   ................\n\
+         ...3 (0x3) bytes not shown..."
+    );
+    let cfg = HexConfig {
+        max_bytes: 4,
+        ..HexConfig::default()
+    };
+    assert_eq!(
+        format!("{:?}", v.hex_conf(cfg)),
+        "Length: 19 (0x13) bytes\n\
+         0000:   00 01 02 03                                          ....\n\
+         ...15 (0xf) bytes not shown..."
     );
 }
 
