@@ -62,6 +62,8 @@ pub struct HexConfig {
     pub chunk: usize,
     /// Maximum bytes to print.
     pub max_bytes: usize,
+    /// Offset added to displayed address prefix
+    pub display_offset: usize,
 }
 
 /// Default configuration with `title`, `ascii`, 16 source bytes `width` grouped to 4 separate
@@ -75,6 +77,7 @@ impl Default for HexConfig {
             group: 4,
             chunk: 1,
             max_bytes: usize::MAX,
+            display_offset: 0,
         }
     }
 }
@@ -136,7 +139,7 @@ where
     let lines_len = lines.len();
     for (i, row) in lines.enumerate() {
         if cfg.width > 0 {
-            write!(writer, "{:04x}:   ", i * cfg.width)?;
+            write!(writer, "{:04x}:   ", i * cfg.width + cfg.display_offset)?;
         }
         for (i, x) in row.as_ref().iter().enumerate() {
             write!(writer, "{}{:02x}", cfg.delimiter(i), x)?;

@@ -57,6 +57,7 @@ fn test_config() {
         group: 0,
         chunk: 0,
         max_bytes: usize::MAX,
+        display_offset: 0
     };
     assert!(config_hex(&vec![], cfg).is_empty());
     assert_eq!("2425262728", config_hex(&"$%&'(", cfg));
@@ -95,6 +96,18 @@ fn test_config() {
          0010:   89d5 cf90 2367 4b48  dbb1 bc35 bfee"
     );
 
+    assert_eq!(
+        config_hex(&v,
+            HexConfig {
+                ascii: false,
+                display_offset: 0x200,
+                ..cfg
+            }
+        ),
+        "0200:   6b 4e 1a c3 af 03 d2 1e  7e 73 ba c8 bd 84 0f 83\n\
+         0210:   89 d5 cf 90 23 67 4b 48  db b1 bc 35 bf ee"
+    );
+
     let v: Vec<u8> = (0..21).collect();
     let want = r##"Length: 21 (0x15) bytes
 0000:   00 01 02 03  04 05 06 07  08 09 0a 0b  0c 0d 0e 0f   ................
@@ -111,6 +124,7 @@ fn test_config() {
                 group: 2,
                 chunk: 3,
                 max_bytes: usize::MAX,
+                display_offset: 0
             }),
         "0000:   000102 030405  060708 090a   ...........\n\
          000b:   0b0c                         .."
@@ -126,6 +140,7 @@ fn test_config() {
                 group: 3,
                 chunk: 3,
                 max_bytes: usize::MAX,
+                display_offset: 0
             }
         ),
         "0000:   000102 030405 060708  090a0b 0c0d0e 0f   ................\n\
