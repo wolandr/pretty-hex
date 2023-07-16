@@ -112,6 +112,18 @@ impl HexConfig {
 
 const NON_ASCII: char = '.';
 
+
+type AddressWriter = dyn Fn(&mut dyn fmt::Write, usize) -> fmt::Result;
+
+fn get_address_writer(max_addr: usize) -> &'static AddressWriter{
+    match max_addr {
+        0x0000..=0xffff => &|w: &mut dyn fmt::Write, a| write!(w, "{:04x}:   ", a),
+        0x010000..=0xffffff => &|w: &mut dyn fmt::Write, a|  write!(w, "{:06x}:   ", a),
+        0x01000000..=0xffffffff => &|w: &mut dyn fmt::Write, a|  write!(w, "{:08x}:   ", a),
+        _ => &|w: &mut dyn fmt::Write, a|  write!(w, "{:016x}:   ", a)
+    }
+}
+
 /// Write hex dump in specified format.
 pub fn hex_write<T, W>(writer: &mut W, source: &T, cfg: HexConfig) -> fmt::Result
 where
@@ -136,10 +148,15 @@ where
     } else {
         source.len()
     });
+
     let lines_len = lines.len();
+
+    let max_address = source.len() - cfg.width + cfg.display_offset;
+    let write_address = get_address_writer(max_address);
+
     for (i, row) in lines.enumerate() {
         if cfg.width > 0 {
-            write!(writer, "{:04x}:   ", i * cfg.width + cfg.display_offset)?;
+            write_address(writer, i * cfg.width + cfg.display_offset)?;
         }
         for (i, x) in row.as_ref().iter().enumerate() {
             write!(writer, "{}{:02x}", cfg.delimiter(i), x)?;
