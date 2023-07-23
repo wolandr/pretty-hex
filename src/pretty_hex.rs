@@ -151,7 +151,11 @@ where
 
     let lines_len = lines.len();
 
-    let max_address = source.len() - cfg.width + cfg.display_offset;
+    let max_address = if source.len() <= cfg.width {
+        source.len() + cfg.display_offset
+    } else {
+        source.len() - cfg.width + cfg.display_offset
+    };
     let write_address = get_address_writer(max_address);
 
     for (i, row) in lines.enumerate() {
