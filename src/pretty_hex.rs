@@ -62,6 +62,8 @@ pub struct HexConfig {
     pub chunk: usize,
     /// Maximum bytes to print.
     pub max_bytes: usize,
+    /// Offset added to displayed address prefix
+    pub display_offset: usize,
 }
 
 /// Default configuration with `title`, `ascii`, 16 source bytes `width` grouped to 4 separate
@@ -75,6 +77,7 @@ impl Default for HexConfig {
             group: 4,
             chunk: 1,
             max_bytes: usize::MAX,
+            display_offset: 0,
         }
     }
 }
@@ -109,6 +112,18 @@ impl HexConfig {
 
 const NON_ASCII: char = '.';
 
+
+type AddressWriter = dyn Fn(&mut dyn fmt::Write, usize) -> fmt::Result;
+
+fn get_address_writer(max_addr: usize) -> &'static AddressWriter{
+    match max_addr {
+        0x0000..=0xffff => &|w: &mut dyn fmt::Write, a| write!(w, "{:04x}:   ", a),
+        0x010000..=0xffffff => &|w: &mut dyn fmt::Write, a|  write!(w, "{:06x}:   ", a),
+        0x01000000..=0xffffffff => &|w: &mut dyn fmt::Write, a|  write!(w, "{:08x}:   ", a),
+        _ => &|w: &mut dyn fmt::Write, a|  write!(w, "{:016x}:   ", a)
+    }
+}
+
 /// Write hex dump in specified format.
 pub fn hex_write<T, W>(writer: &mut W, source: &T, cfg: HexConfig) -> fmt::Result
 where
@@ -133,10 +148,19 @@ where
     } else {
         source.len()
     });
+
     let lines_len = lines.len();
+
+    let max_address = if source.len() <= cfg.width {
+        source.len() + cfg.display_offset
+    } else {
+        source.len() - cfg.width + cfg.display_offset
+    };
+    let write_address = get_address_writer(max_address);
+
     for (i, row) in lines.enumerate() {
         if cfg.width > 0 {
-            write!(writer, "{:04x}:   ", i * cfg.width)?;
+            write_address(writer, i * cfg.width + cfg.display_offset)?;
         }
         for (i, x) in row.as_ref().iter().enumerate() {
             write!(writer, "{}{:02x}", cfg.delimiter(i), x)?;
