@@ -14,7 +14,7 @@ keywords = ["logging", "hex", "dump", "binary"]
 [dependencies]
 
 [dev-dependencies]
-heapless = "0.8"
+heapless = "0.9"
 
 [features]
 default = ["alloc"]
