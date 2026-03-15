@@ -57,7 +57,7 @@ fn test_config() {
         group: 0,
         chunk: 0,
         max_bytes: usize::MAX,
-        display_offset: 0
+        display_offset: 0,
     };
     assert!(config_hex(&vec![], cfg).is_empty());
     assert_eq!("2425262728", config_hex(&"$%&'(", cfg));
@@ -68,8 +68,7 @@ fn test_config() {
         group: 8,
         ..HexConfig::default()
     };
-    let hex =
-        "0000:   6b 4e 1a c3 af 03 d2 1e  7e 73 ba c8 bd 84 0f 83   kN......~s......\n\
+    let hex = "0000:   6b 4e 1a c3 af 03 d2 1e  7e 73 ba c8 bd 84 0f 83   kN......~s......\n\
          0010:   89 d5 cf 90 23 67 4b 48  db b1 bc 35 bf ee         ....#gKH...5..";
     assert_eq!(hex, config_hex(&v, cfg));
     assert_eq!(hex, format!("{:?}", v.hex_conf(cfg)));
@@ -78,13 +77,20 @@ fn test_config() {
     assert_eq!(hex, str);
 
     assert_eq!(
-        config_hex(&v, HexConfig{ascii: false, ..cfg}),
+        config_hex(
+            &v,
+            HexConfig {
+                ascii: false,
+                ..cfg
+            }
+        ),
         "0000:   6b 4e 1a c3 af 03 d2 1e  7e 73 ba c8 bd 84 0f 83\n\
          0010:   89 d5 cf 90 23 67 4b 48  db b1 bc 35 bf ee"
     );
 
     assert_eq!(
-        config_hex(&v,
+        config_hex(
+            &v,
             HexConfig {
                 ascii: false,
                 group: 4,
@@ -97,7 +103,8 @@ fn test_config() {
     );
 
     assert_eq!(
-        config_hex(&v,
+        config_hex(
+            &v,
             HexConfig {
                 ascii: false,
                 display_offset: 0x200,
@@ -116,7 +123,8 @@ fn test_config() {
 
     let v: Vec<u8> = (0..13).collect();
     assert_eq!(
-        config_hex(&v,
+        config_hex(
+            &v,
             HexConfig {
                 title: false,
                 ascii: true,
@@ -125,14 +133,16 @@ fn test_config() {
                 chunk: 3,
                 max_bytes: usize::MAX,
                 display_offset: 0
-            }),
+            }
+        ),
         "0000:   000102 030405  060708 090a   ...........\n\
          000b:   0b0c                         .."
     );
 
     let v: Vec<u8> = (0..19).collect();
     assert_eq!(
-        config_hex(&v,
+        config_hex(
+            &v,
             HexConfig {
                 title: false,
                 ascii: true,
@@ -170,7 +180,7 @@ fn test_config() {
         format!("{:?}", v.hex_conf(cfg)),
         "Length: 19 (0x13) bytes\n\
          0000:   00 01 02 03  04 05 06 07  08 09 0a 0b  0c 0d 0e 0f   ................\n\
-         ...3 (0x3) bytes not shown..."
+         ... 3 (0x3) bytes not shown ..."
     );
     let cfg = HexConfig {
         max_bytes: 4,
@@ -180,8 +190,19 @@ fn test_config() {
         format!("{:?}", v.hex_conf(cfg)),
         "Length: 19 (0x13) bytes\n\
          0000:   00 01 02 03                                          ....\n\
-         ...15 (0xf) bytes not shown..."
+         ... 15 (0xf) bytes not shown ..."
     );
+
+    let cfg = HexConfig {
+        max_bytes: v.len(),
+        ..HexConfig::default()
+    };
+    assert_eq!(
+        format!("{:?}", v.hex_conf(cfg)),
+        "Length: 19 (0x13) bytes\n\
+         0000:   00 01 02 03  04 05 06 07  08 09 0a 0b  0c 0d 0e 0f   ................\n\
+         0010:   10 11 12                                             ..."
+    )
 }
 
 #[cfg(feature = "alloc")]
@@ -189,7 +210,7 @@ fn test_config() {
 fn test_unsized() {
     struct NewType([u8]);
 
-    let x: &NewType = unsafe{ &*(&[] as *const [u8] as *const NewType) };
+    let x: &NewType = unsafe { &*(&[] as *const [u8] as *const NewType) };
 
     format!("{}", x.0.hex_dump());
     format!("{:?}", x.0.hex_dump());
@@ -203,7 +224,8 @@ fn test_unsized() {
 fn test_hex_write_with_simple_config() {
     let config = HexConfig::simple();
     let bytes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-    let expected = core::str::from_utf8(b"00 01 02 03  04 05 06 07  08 09 0a 0b  0c 0d 0e 0f").unwrap();
+    let expected =
+        core::str::from_utf8(b"00 01 02 03  04 05 06 07  08 09 0a 0b  0c 0d 0e 0f").unwrap();
     let mut buffer = heapless::Vec::<u8, 50>::new();
 
     hex_write(&mut buffer, &bytes, config).unwrap();

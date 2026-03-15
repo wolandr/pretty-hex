@@ -112,15 +112,14 @@ impl HexConfig {
 
 const NON_ASCII: char = '.';
 
-
 type AddressWriter = dyn Fn(&mut dyn fmt::Write, usize) -> fmt::Result;
 
-fn get_address_writer(max_addr: usize) -> &'static AddressWriter{
+fn get_address_writer(max_addr: usize) -> &'static AddressWriter {
     match max_addr {
         0x0000..=0xffff => &|w: &mut dyn fmt::Write, a| write!(w, "{:04x}:   ", a),
-        0x010000..=0xffffff => &|w: &mut dyn fmt::Write, a|  write!(w, "{:06x}:   ", a),
-        0x01000000..=0xffffffff => &|w: &mut dyn fmt::Write, a|  write!(w, "{:08x}:   ", a),
-        _ => &|w: &mut dyn fmt::Write, a|  write!(w, "{:016x}:   ", a)
+        0x010000..=0xffffff => &|w: &mut dyn fmt::Write, a| write!(w, "{:06x}:   ", a),
+        0x01000000..=0xffffffff => &|w: &mut dyn fmt::Write, a| write!(w, "{:08x}:   ", a),
+        _ => &|w: &mut dyn fmt::Write, a| write!(w, "{:016x}:   ", a),
     }
 }
 
@@ -139,7 +138,10 @@ where
         return Ok(());
     }
 
-    let omitted = source.len().checked_sub(cfg.max_bytes);
+    let omitted = source
+        .len()
+        .checked_sub(cfg.max_bytes)
+        .and_then(|o| (o > 0).then_some(o));
     if omitted.is_some() {
         source = &source[..cfg.max_bytes];
     }
@@ -183,7 +185,7 @@ where
         }
     }
     if let Some(o) = omitted {
-        write!(writer, "\n...{0} (0x{0:x}) bytes not shown...", o)?;
+        write!(writer, "\n... {0} (0x{0:x}) bytes not shown ...", o)?;
     }
     Ok(())
 }
