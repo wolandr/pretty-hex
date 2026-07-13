@@ -62,6 +62,25 @@ Output:
 0010:   89 d5 cf 90 23 67 4b 48   ....#gKH
 0018:   db b1 bc 35 bf ee         ...5..
 ```
+
+## Autoskip (`xxd -a` style)
+
+Set `autoskip: true` in `HexConfig` to collapse consecutive all-zero rows into a
+single `*` line, just like `xxd -a`:
+
+```rust
+use pretty_hex::*;
+
+let cfg = HexConfig { autoskip: true, ..HexConfig::default() };
+println!("{:?}", vec![0u8; 80].hex_conf(cfg));
+```
+Output:
+
+```text
+Length: 80 (0x50) bytes
+0000:   00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00   ................
+*
+```
 ---
 
 Inspired by [haskell's pretty-hex](https://hackage.haskell.org/package/pretty-hex-1.0).

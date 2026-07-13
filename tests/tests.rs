@@ -58,6 +58,7 @@ fn test_config() {
         chunk: 0,
         max_bytes: usize::MAX,
         display_offset: 0,
+        autoskip: false,
     };
     assert!(config_hex(&vec![], cfg).is_empty());
     assert_eq!("2425262728", config_hex(&"$%&'(", cfg));
@@ -132,7 +133,8 @@ fn test_config() {
                 group: 2,
                 chunk: 3,
                 max_bytes: usize::MAX,
-                display_offset: 0
+                display_offset: 0,
+                autoskip: false
             }
         ),
         "0000:   000102 030405  060708 090a   ...........\n\
@@ -150,7 +152,8 @@ fn test_config() {
                 group: 3,
                 chunk: 3,
                 max_bytes: usize::MAX,
-                display_offset: 0
+                display_offset: 0,
+                autoskip: false
             }
         ),
         "0000:   000102 030405 060708  090a0b 0c0d0e 0f   ................\n\
@@ -203,6 +206,47 @@ fn test_config() {
          0000:   00 01 02 03  04 05 06 07  08 09 0a 0b  0c 0d 0e 0f   ................\n\
          0010:   10 11 12                                             ..."
     )
+}
+
+#[cfg(feature = "alloc")]
+#[test]
+fn test_autoskip() {
+    // Runs of full-width all-zero rows collapse into a single `*` line (like `xxd -a`).
+    let mut v: Vec<u8> = vec![0; 16 * 5];
+    v[16 * 2] = 0xaa; // break the zero run partway through the third row
+    let cfg = HexConfig {
+        autoskip: true,
+        ..HexConfig::default()
+    };
+    assert_eq!(
+        format!("{:?}", v.hex_conf(cfg)),
+        "Length: 80 (0x50) bytes\n\
+         0000:   00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00   ................\n\
+         *\n\
+         0020:   aa 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00   ................\n\
+         0030:   00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00   ................\n\
+         *"
+    );
+
+    // A trailing partial zero row is not collapsed (it isn't full width).
+    let v: Vec<u8> = vec![0; 16 * 2 + 3];
+    assert_eq!(
+        format!("{:?}", v.hex_conf(cfg)),
+        "Length: 35 (0x23) bytes\n\
+         0000:   00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00   ................\n\
+         *\n\
+         0020:   00 00 00                                             ..."
+    );
+
+    // Autoskip off (the default) prints every row.
+    let v: Vec<u8> = vec![0; 16 * 3];
+    assert_eq!(
+        format!("{:?}", v.hex_dump()),
+        "Length: 48 (0x30) bytes\n\
+         0000:   00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00   ................\n\
+         0010:   00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00   ................\n\
+         0020:   00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00   ................"
+    );
 }
 
 #[cfg(feature = "alloc")]
