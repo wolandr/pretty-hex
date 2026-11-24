@@ -64,6 +64,8 @@ pub struct HexConfig {
     pub max_bytes: usize,
     /// Offset added to displayed address prefix
     pub display_offset: usize,
+    /// Collapse consecutive all-zero rows into a single `*` line (like `xxd -a`).
+    pub autoskip: bool,
 }
 
 /// Default configuration with `title`, `ascii`, 16 source bytes `width` grouped to 4 separate
@@ -78,6 +80,7 @@ impl Default for HexConfig {
             chunk: 1,
             max_bytes: usize::MAX,
             display_offset: 0,
+            autoskip: false,
         }
     }
 }
@@ -151,8 +154,6 @@ where
         source.len()
     });
 
-    let lines_len = lines.len();
-
     let max_address = if source.len() <= cfg.width {
         source.len() + cfg.display_offset
     } else {
@@ -160,12 +161,43 @@ where
     };
     let write_address = get_address_writer(max_address);
 
+    // Autoskip state: collapse runs of full-width all-zero rows into a single `*`.
+    let mut first = true;
+    let mut in_zero_run = false;
+    let mut star_printed = false;
+
     for (i, row) in lines.enumerate() {
+        let row = row.as_ref();
+
+        if cfg.autoskip && cfg.width > 0 && row.len() == cfg.width && row.iter().all(|&b| b == 0) {
+            if in_zero_run {
+                if !star_printed {
+                    if !first {
+                        writeln!(writer)?;
+                    }
+                    write!(writer, "*")?;
+                    star_printed = true;
+                    first = false;
+                }
+                continue;
+            }
+            in_zero_run = true;
+            star_printed = false;
+        } else {
+            in_zero_run = false;
+            star_printed = false;
+        }
+
+        if !first {
+            writeln!(writer)?;
+        }
+        first = false;
+
         if cfg.width > 0 {
             write_address(writer, i * cfg.width + cfg.display_offset)?;
         }
-        for (i, x) in row.as_ref().iter().enumerate() {
-            write!(writer, "{}{:02x}", cfg.delimiter(i), x)?;
+        for (j, x) in row.iter().enumerate() {
+            write!(writer, "{}{:02x}", cfg.delimiter(j), x)?;
         }
         if cfg.ascii {
             for j in row.len()..cfg.width {
@@ -180,12 +212,12 @@ where
                 }
             }
         }
-        if i + 1 < lines_len {
-            writeln!(writer)?;
-        }
     }
     if let Some(o) = omitted {
-        write!(writer, "\n... {0} (0x{0:x}) bytes not shown ...", o)?;
+        if !first {
+            writeln!(writer)?;
+        }
+        write!(writer, "... {0} (0x{0:x}) bytes not shown ...", o)?;
     }
     Ok(())
 }
